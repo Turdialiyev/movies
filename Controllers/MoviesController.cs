@@ -9,7 +9,7 @@ namespace databeses.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class MoviesController: ControllerBase 
+public class MoviesController : ControllerBase
 {
     private ILogger<MoviesController> _logger;
     private AppDbContext _context;
@@ -23,8 +23,9 @@ public class MoviesController: ControllerBase
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-        return Ok( await _context.Movies.ToListAsync());
+        return Ok(await _context.Movies.ToListAsync());
     }
+
     [HttpPut]
     public async Task<IActionResult> GetById(Guid id)
     {
@@ -35,7 +36,7 @@ public class MoviesController: ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Dtos.Movie movie)
+    public async Task<IActionResult> Create(databeses.Dtos.Movie movie)
     {
         var entity = new Movie()
         {
@@ -51,9 +52,26 @@ public class MoviesController: ControllerBase
                 databeses.Dtos.EGener.Comedy => EGener.Comedy,
             },
         };
-        
-        await _context.SaveChangesAsync();        
+
+        await _context.SaveChangesAsync(entity);
         return CreatedAtAction(nameof(Create), entity);
     }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Remove([FromRoute] Guid id)
+    {
+        var movie = await _context.Movies.FindAsync(id);
+        if (movie is null)
+            return NotFound();
+
+        _context.Movies.Remove(movie);
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+
+
+
 
 }
